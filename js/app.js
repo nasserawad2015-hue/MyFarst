@@ -60,6 +60,21 @@
     toast._t = setTimeout(() => el.classList.remove('show'), 2200);
   }
 
+  /** تأكيد بنقرتين بدل نافذة confirm (التي لا تعمل في بعض المتصفحات المضمّنة). */
+  function confirmClick(btn, msg) {
+    if (btn.dataset.armed) return true;
+    btn.dataset.armed = '1';
+    btn.dataset.label = btn.textContent;
+    btn.textContent = 'اضغط مرة أخرى للتأكيد';
+    toast(msg);
+    setTimeout(() => {
+      if (!btn.isConnected) return;
+      delete btn.dataset.armed;
+      btn.textContent = btn.dataset.label;
+    }, 3500);
+    return false;
+  }
+
   const LANG_LABEL = { swift: 'Swift', html: 'HTML' };
 
   // ═════════════════ البطاقات ═════════════════
@@ -486,7 +501,7 @@
       save(); session = null; renderCardList(); toast('أُعيد تعيين البطاقة');
     }));
     $$('[data-del]', list).forEach(b => b.addEventListener('click', () => {
-      if (!confirm('حذف هذه البطاقة نهائيًا؟')) return;
+      if (!confirmClick(b, 'ستُحذف هذه البطاقة نهائيًا')) return;
       const id = b.dataset.del;
       store.custom = store.custom.filter(c => c.id !== id);
       delete store.progress[id];
@@ -647,6 +662,12 @@
     a.download = `akwadi-backup-${dayKey()}.json`;
     a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    // نسخة في الحافظة أيضًا، لأن بعض المتصفحات المضمّنة تمنع التنزيل
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(JSON.stringify(store)).then(
+        () => toast('نُزّلت النسخة ونُسخت إلى الحافظة'),
+        () => {});
+    }
   });
 
   $('#import').addEventListener('click', () => $('#import-file').click());
@@ -666,8 +687,8 @@
     e.target.value = '';
   });
 
-  $('#reset-all').addEventListener('click', () => {
-    if (!confirm('سيُحذف كل التقدّم والسجل (مع الإبقاء على بطاقاتك). متابعة؟')) return;
+  $('#reset-all').addEventListener('click', e => {
+    if (!confirmClick(e.currentTarget, 'سيُحذف كل التقدّم والسجل، وتبقى بطاقاتك')) return;
     store.progress = {};
     store.log = {};
     store.extraNew = { date: '', count: 0 };

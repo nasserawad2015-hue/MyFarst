@@ -31,7 +31,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #0b1020;
     --surface: #131a2e;
     --surface-2: #1b2340;
@@ -42,7 +42,21 @@
     --primary-ink: #0b1020;
     --shadow: 0 10px 30px -12px rgba(0, 0, 0, .6);
     --code-bg: #0a0f1d;
+    color-scheme: dark;
   }
+}
+:root[data-theme="dark"] {
+  --bg: #0b1020;
+  --surface: #131a2e;
+  --surface-2: #1b2340;
+  --text: #e5e9f5;
+  --muted: #94a3b8;
+  --border: #26304f;
+  --primary: #818cf8;
+  --primary-ink: #0b1020;
+  --shadow: 0 10px 30px -12px rgba(0, 0, 0, .6);
+  --code-bg: #0a0f1d;
+  color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
@@ -71,7 +85,7 @@ code { font-family: var(--mono); font-size: .9em; }
 
 /* ───── الشريط العلوي ───── */
 .topbar {
-  position: sticky; top: 0; z-index: 10;
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10;
   display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
   padding: 12px max(16px, calc((100% - 960px) / 2));
   background: color-mix(in srgb, var(--surface) 88%, transparent);
