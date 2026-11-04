@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="تطبيق بطاقات تعليمية لحفظ أكواد Swift وHTML بنظام التكرار المتباعد">
+  <meta name="theme-color" content="#0f172a">
+  <title>أكوادي — احفظ Swift وHTML</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">&lt;/&gt;</span>
+      <div>
+        <h1>أكوادي</h1>
+        <p>احفظ أكواد Swift وHTML بالتكرار المتباعد</p>
+      </div>
+    </div>
+    <nav class="tabs" role="tablist">
+      <button role="tab" data-view="review" class="active">🃏 المراجعة</button>
+      <button role="tab" data-view="cards">📚 البطاقات</button>
+      <button role="tab" data-view="stats">📈 التقدّم</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- ═════ المراجعة ═════ -->
+    <section id="view-review" class="view active" aria-label="المراجعة">
+      <div class="toolbar">
+        <div class="deck-filter segmented" role="group" aria-label="اختر المجموعة">
+          <button data-deck="all">الكل</button>
+          <button data-deck="swift">Swift</button>
+          <button data-deck="html">HTML</button>
+        </div>
+        <div class="counts">
+          <span class="pill due">للمراجعة <b id="c-due">0</b></span>
+          <span class="pill new">جديدة <b id="c-new">0</b></span>
+        </div>
+      </div>
+      <div id="review-area"></div>
+    </section>
+
+    <!-- ═════ البطاقات ═════ -->
+    <section id="view-cards" class="view" aria-label="البطاقات">
+      <div class="toolbar">
+        <input id="search" type="search" placeholder="ابحث في البطاقات…" aria-label="بحث">
+        <select id="list-lang" aria-label="اللغة">
+          <option value="all">كل اللغات</option>
+          <option value="swift">Swift</option>
+          <option value="html">HTML</option>
+        </select>
+        <span id="list-count" class="muted"></span>
+        <button id="add-card" class="btn primary">＋ بطاقة جديدة</button>
+      </div>
+
+      <form id="card-form" class="panel" hidden>
+        <h3 id="form-heading">بطاقة جديدة</h3>
+        <div class="form-row">
+          <label>اللغة
+            <select id="f-lang">
+              <option value="swift">Swift</option>
+              <option value="html">HTML</option>
+            </select>
+          </label>
+          <label class="grow">العنوان
+            <input id="f-title" type="text" placeholder="مثال: تعريف مصفوفة" required>
+          </label>
+        </div>
+        <label>ملاحظة / شرح (اختياري)
+          <input id="f-note" type="text" placeholder="معلومة تساعدك على التذكر">
+        </label>
+        <label>الكود
+          <textarea id="f-code" rows="8" dir="ltr" spellcheck="false" placeholder='let {{name}} = "Swift"'></textarea>
+        </label>
+        <p class="help">
+          ضع الأجزاء التي تريد إخفاءها بين <code dir="ltr">{{</code> و <code dir="ltr">}}</code>،
+          ويمكنك كتابة أكثر من إجابة صحيحة مفصولة بـ <code>|</code> مثل <code dir="ltr">{{..&lt;|...}}</code>.
+          أو حدّد جزءًا من الكود واضغط «اجعله فراغًا».
+        </p>
+        <div class="form-actions">
+          <button type="button" id="wrap-blank" class="btn ghost">⬚ اجعل المحدد فراغًا</button>
+          <span class="spacer"></span>
+          <button type="button" id="cancel-form" class="btn ghost">إلغاء</button>
+          <button type="submit" class="btn primary">حفظ</button>
+        </div>
+        <div class="preview-title">المعاينة</div>
+        <div id="form-preview"></div>
+      </form>
+
+      <div id="card-list"></div>
+    </section>
+
+    <!-- ═════ التقدّم ═════ -->
+    <section id="view-stats" class="view" aria-label="التقدّم">
+      <div class="stat-grid" id="stat-grid"></div>
+
+      <div class="two-col">
+        <div class="panel">
+          <h3>التقدّم في كل لغة</h3>
+          <div id="lang-progress"></div>
+        </div>
+        <div class="panel">
+          <h3>النشاط في آخر 14 يومًا</h3>
+          <div id="activity" class="activity"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>الإعدادات</h3>
+        <div class="settings">
+          <label>عدد البطاقات الجديدة يوميًا
+            <input id="new-per-day" type="number" min="1" max="100" value="10">
+          </label>
+          <div class="settings-actions">
+            <button id="export" class="btn ghost">⬇ تصدير نسخة احتياطية</button>
+            <button id="import" class="btn ghost">⬆ استيراد نسخة</button>
+            <input id="import-file" type="file" accept="application/json,.json" hidden>
+            <button id="reset-all" class="btn danger">إعادة تعيين التقدّم</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel explain">
+        <h3>كيف يعمل التكرار المتباعد؟</h3>
+        <p>
+          كل بطاقة لها موعد مراجعة. عندما تتذكّر الكود جيدًا يطول الفاصل حتى المراجعة التالية
+          (يوم ← 6 أيام ← أسابيع ← أشهر)، وعندما تنساه تعود البطاقة إليك سريعًا.
+          بهذا تراجع ما تحتاجه فقط في الوقت المناسب قبل أن تنساه.
+        </p>
+        <ul>
+          <li><b>مرة أخرى:</b> لم أتذكّر — تعود البطاقة خلال الجلسة نفسها.</li>
+          <li><b>صعب:</b> تذكّرت بصعوبة — فاصل أقصر.</li>
+          <li><b>جيد:</b> تذكّرت بشكل صحيح — الفاصل الطبيعي.</li>
+          <li><b>سهل:</b> تذكّرت فورًا — فاصل أطول.</li>
+        </ul>
+        <p class="muted">اختصارات: <kbd>Enter</kbd> للتحقق، و <kbd>1</kbd>–<kbd>4</kbd> للتقييم. يُحفظ تقدّمك في متصفحك تلقائيًا.</p>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/cards.js"></script>
+  <script src="js/srs.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
